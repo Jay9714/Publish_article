@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>index</title>
+  </head>
+  <body>
+    <h1>Intellial</h1>
+    <a href="{% url 'registration'%}" class="btn btn-primary">Registration</a>
+    <a href="{% url 'loginview'%}" class="btn btn-primary">Login</a>
+
+
+<!-- To SHOW THE POPULAR TAG -->
+
+
+<div class="container" style="border: 0px solid; margin-top: 5px;margin-left: 75%; max-width: 20%;max-height: auto;">
+  <h4>Popular Tags  </h4>
+  {% for tag in popular_tag %}
+    <strong class="btn default"  style="margin-top: 10px;border-color: rgb(17, 11, 1);">
+      <a href="{% url 'tag_post' tag.id %}" style="color: black;">{{tag}}</a>
+    </strong>&MediumSpace;
+  {% endfor %}
+</div>
+
+<!-- TO SHOW THE ARTICLE -->
+
+
+    <div class="container" style="border: 0px solid; margin-top: -90px; max-width: 50%;">
+      <table>
+        {% for data in article_data %}
+          <tr>
+            Author : {{data.user}} <br>
+            Title : {{data.title}} <br>
+            <img src="{{data.img.url}}" alt=" " style="max-height:300px; width: 500px;"><br>
+            Content : {{data.content}} <br>
+            <strong>Tag : </strong>&MediumSpace;
+                {% for tag in data.tags.all %}
+                  <strong class="btn default" style="margin-top: 10px;border-color: rgb(17, 11, 1);">
+                    <h6>{{tag}}
+                      <!-- <a href="" class="fa fa-trash-o" style="color: rgb(248, 8, 8);" ></a> -->
+                  </h6></strong>&MediumSpace; 
+                  
+                  <!-- <form action="" method="POST">
+                    {% csrf_token %}
+                      <button type="submit" value="{{data.id}}"></button>
+                  </form> -->
+                {% endfor %}<br>
+              <b>--------------------------------------------------------------------------------------</b><br>
+          </tr>
+        {% endfor %}
+      </table> 
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
+
+
+
+
+
