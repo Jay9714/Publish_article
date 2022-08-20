@@ -35,6 +35,7 @@ class articleview(forms.ModelForm):
             'title':forms.TextInput(attrs={'class':'form-control','placeholder':'Enter the Title'}),
             'content':forms.Textarea(attrs={'class':'form-control','placeholder':'Enter the Content'}),
             # 'tags':forms.TextInput(attrs={'class':'form-control','Placeholder':'A comma-seperated list of tags'}),
+
             'img':forms.FileInput(attrs={'class':'form-control'}),
         }
 

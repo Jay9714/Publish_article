@@ -15,8 +15,20 @@
 
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
-      {{form.as_p}}
-     <h5>Tags : </h5><input type="text" name="tags" required><br>
+      {{articleview_form.as_p}}
+      {% if x %}
+        <h5>Tags : </h5><input type="text" name="tags" value="{{x}}"><br>
+      {% else%}
+        <h5>Tags : </h5><input type="text" name="tags"><br>
+      {% endif %}
+      <!-- {% if x %}
+        <h5>Tags : </h5>
+          {% for y in x %}
+            <input type="text" name="tags" value="{{y}}"><br>
+          {% endfor %}
+      {% else%}
+     <h5>Tags : </h5><input type="text" name="tags"><br>
+     {% endif %} -->
      <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Save</button>
      <a href="{{ view.get_success_url }}" class="btn btn-primary" style="margin-top: 10px;">Clear</a>
      <a href="{% url 'main_page'%}" class="btn btn-primary" style="margin-top: 10px;">Cancel</a>

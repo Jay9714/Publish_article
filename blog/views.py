@@ -1,3 +1,4 @@
+from django.template import loader
 from genericpath import exists
 from multiprocessing.sharedctypes import Value
 from optparse import Values
@@ -12,40 +13,36 @@ from collections import Counter
 from heapq import nlargest
 
 def main_page(request):
-    # tag=Article.tags.most_common()[0:2]
-    # print(tag)
+    article_data = Article.objects.filter(status='published').order_by('-id')
     list =[]
-    data = Article.objects.filter(status='published')
-    for tag in data:
-        for tag in tag.tags.all():
+    for article_data_tag in article_data:
+        for tag in article_data_tag.tags.all():
             # print(tag,"oooooooooooooo")
             # x=tag
             list.append(tag)
-    c=Counter(list)
-    popular_tag = nlargest(3,c,key=c.get)
+    count_tag=Counter(list)
+    popular_tag = nlargest(3,count_tag,key=count_tag.get)
     # print(c,"wwwwwwwwwwwww")
     # print(new,"qqqqqqqqq")
 
-    article_data = Article.objects.filter(status='published').order_by('-id')
-    con = {"article_data":article_data,"data":data,"popular_tag":popular_tag}
+    con = {"article_data":article_data,"popular_tag":popular_tag}
     return render(request,"main_page.html",con)
 
 
 def index(request):
+    article_data = Article.objects.filter(status='published').order_by('-id')
     list =[]
-    data = Article.objects.filter(status='published')
-    for tag in data:
+    for tag in article_data:
         for tag in tag.tags.all():
             list.append(tag)
-    c=Counter(list)
-    popular_tag = nlargest(3,c,key=c.get)
-    article_data = Article.objects.filter(status='published').order_by('-id')
-    con = {"article_data":article_data,"popular_tag":popular_tag,"data":data}
+    count_tag=Counter(list)
+    popular_tag = nlargest(3,count_tag,key=count_tag.get)
+    con = {"article_data":article_data,"popular_tag":popular_tag}
     return render(request,"index.html",con)
 
 
 def loginview(request):
-    form = Userlogin()
+    login_form = Userlogin()
     if request.method == 'POST':
         uname = request.POST['username']
         upass = request.POST['password']
@@ -62,21 +59,21 @@ def loginview(request):
         #     return redirect('main_page')
         # else:
         #     pass
-    con = {"form":form}
+    con = {"login_form":login_form}
     return render(request,"login.html",con)
 
 
 def registration(request):
-    form = Registration()
+    registration_form = Registration()
     if request.method == "POST":
-        form = Registration(request.POST)
-        if form.is_valid():
-            form.save()
+        registration_form = Registration(request.POST)
+        if registration_form.is_valid():
+            registration_form.save()
             return redirect("loginview")
     else:
-        form = Registration()
+        registration_form = Registration()
 
-    con = {"form":form}
+    con = {"registration_form":registration_form}
     return render(request,"registration.html",con)
 
 
@@ -90,24 +87,24 @@ def article(request):
     # tag=request.POST.get('tag')
     # print(tag)
     if request.method=="POST":
-        form= articleview(request.POST,request.FILES)
+        articleview_form= articleview(request.POST,request.FILES)
         tags=request.POST["tags"]
-        obj=tags.split(',')
+        split_tag=tags.split(',')
         # print(obj)
         # obj.save()
             # print(tags)
-        if form.is_valid():
-            form.instance.user = request.user
-            ob = form.save()
-            for x in obj:
-                tags = Tag.objects.filter(tag__iexact=x).first()
+        if articleview_form.is_valid():
+            articleview_form.instance.user = request.user
+            article = articleview_form.save()
+            for tag in split_tag:
+                tags = Tag.objects.filter(tag__iexact=tag).first()
                 if not tags:
-                    tags=Tag.objects.create(tag=x)
-                ob.tags.add(tags.id)
+                    tags=Tag.objects.create(tag=tag)
+                article.tags.add(tags.id)
             return redirect("main_page")
     else:
-        form=articleview()
-    con = {"form":form}
+        articleview_form=articleview()
+    con = {"articleview_form":articleview_form}
     return render(request,"article.html",con)
 
 
@@ -116,29 +113,32 @@ def draft(request):
     con = {"article_data":article_data}
     return render(request,"draft.html",con)
 
-# object.tags.clear()
-# for tag in data['tags']:
-#     object.tags.add(tag)
 def edit_draft(request,id):
     article_data_id=Article.objects.get(id=id)
-    # article_tag=Tag.objects.get(id=id)
-    data = Article.objects.filter()
+    dgdg=list(article_data_id.tags.values_list("tag",flat=True))
+    exists= [str(x).strip() for x in dgdg]
     if request.method=="POST":
-        form=articleview(request.POST,request.FILES,instance=article_data_id)
-        tags=request.POST["tags"]
-        obj=tags.split(',')
-        if form.is_valid():
-            form.instance.user = request.user
-            ob = form.save()
-            for x in obj:
-                tags = Tag.objects.filter(tag__iexact=x).first()
-                if not tags:
-                    tags=Tag.objects.create(tag=x)
-                ob.tags.add(tags.id)
+        articleview_form=articleview(request.POST,request.FILES,instance=article_data_id)
+        get_tags=request.POST["tags"]
+        split_tag=get_tags.split(',')
+        split_tag= [str(x).strip() for x in split_tag]
+        if articleview_form.is_valid():
+            article = articleview_form.save()
+            for tags in exists:
+                if str(tags).strip() not in split_tag:
+                    tag = Tag.objects.filter(tag__iexact=tags.strip()).first()
+                    article.tags.remove(tag.id)
+            for tag in split_tag:
+                if str(tag).strip() not in exists:
+                    tags = Tag.objects.filter(tag__iexact=tag.strip()).first()
+                    if not tags:
+                        tags=Tag.objects.create(tag=tag)
+                    article.tags.add(tags.id)
             return redirect("main_page")
     else:
-        form=articleview(instance=article_data_id)
-    con = {"form":form}
+        articleview_form=articleview(instance=article_data_id)
+        # print(articleview_form,"1111111111111111")
+    con = {"articleview_form":articleview_form,"x":str(exists).replace("]","").replace("[","").replace("'","")}
     return render(request,"article.html",con)
 
 
